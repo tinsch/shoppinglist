@@ -16,6 +16,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".ShoppingItemActivity"></activity>
+        <provider
+            android:authorities="mobanwendungen.shoppinglist.contentprovider"
+            android:name=".contentprovider.ShoppinglistContentProvider">
+        </provider>
     </application>
 
 </manifest>
