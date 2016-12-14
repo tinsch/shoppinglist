@@ -20,7 +20,7 @@ public class ShoppingItemActivity extends Activity {
     private EditText mTitleText;
     private EditText mBodyText;
 
-    private Uri todoUri;
+    private Uri itemUri;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -34,16 +34,17 @@ public class ShoppingItemActivity extends Activity {
 
         Bundle extras = getIntent().getExtras();
 
+        //Todo: ask Schwotzer?
         // check from the saved Instance
-        todoUri = (bundle == null) ? null : (Uri) bundle
+        itemUri = (bundle == null) ? null : (Uri) bundle
                 .getParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE);
 
         // Or passed from the other activity
         if (extras != null) {
-            todoUri = extras
+            itemUri = extras
                     .getParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE);
 
-            fillData(todoUri);
+            fillData(itemUri);
         }
 
         confirmButton.setOnClickListener(new View.OnClickListener() {
@@ -59,6 +60,7 @@ public class ShoppingItemActivity extends Activity {
         });
     }
 
+    //Todo: geht das nicht leichter zu implementieren?!
     private void fillData(Uri uri) {
         String[] projection = { ShoppinglistTable.COLUMN_TITLE,
                 ShoppinglistTable.COLUMN_DESCRIPTION, ShoppinglistTable.COLUMN_CATEGORY };
@@ -90,7 +92,7 @@ public class ShoppingItemActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         saveState();
-        outState.putParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, todoUri);
+        outState.putParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, itemUri);
     }
 
     @Override
@@ -116,18 +118,18 @@ public class ShoppingItemActivity extends Activity {
         values.put(ShoppinglistTable.COLUMN_TITLE, itemTitle);
         values.put(ShoppinglistTable.COLUMN_DESCRIPTION, description);
 
-        if (todoUri == null) {
+        if (itemUri == null) {
             // New todo
-            todoUri = getContentResolver().insert(
+            itemUri = getContentResolver().insert(
                     ShoppinglistContentProvider.CONTENT_URI, values);
         } else {
             // Update todo
-            getContentResolver().update(todoUri, values, null, null);
+            getContentResolver().update(itemUri, values, null, null);
         }
     }
 
     private void makeToast() {
-        Toast.makeText(ShoppingItemActivity.this, "Please maintain a title",
+        Toast.makeText(ShoppingItemActivity.this, R.string.error_message_edit_item,
                 Toast.LENGTH_LONG).show();
     }
 }

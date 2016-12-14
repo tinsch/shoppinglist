@@ -62,6 +62,7 @@ public class ShoppinglistActivity extends ListActivity implements
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            //Todo: check if getItemId always returns 2 when an item is pushed long!?!
             case DELETE_ID:
                 AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
                         .getMenuInfo();
@@ -84,9 +85,9 @@ public class ShoppinglistActivity extends ListActivity implements
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Intent i = new Intent(this, ShoppingItemActivity.class);
-        Uri todoUri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/" + id);
-        i.putExtra(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, todoUri);
-
+        //Todo: fragen, ob andere Key sinnvoll waere!?
+        Uri itemUri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/" + id);
+        i.putExtra(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, itemUri);
         startActivity(i);
     }
 
@@ -108,6 +109,7 @@ public class ShoppinglistActivity extends ListActivity implements
     }
 
     @Override
+    //Todo: exchange createContextMenu with small item on the listView (e.g. red cross)
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
