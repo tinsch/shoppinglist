@@ -9,7 +9,7 @@ public class ShoppinglistTable {
     public static final String TABLE_SHOPPINGLIST = "shoppinglist";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_CATEGORY = "category";
-    public static final String COLUMN_SUMMARY = "summary";
+    public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_DESCRIPTION = "description";
 
     private static final String DATABASE_CREATE = " create table "
@@ -17,7 +17,7 @@ public class ShoppinglistTable {
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_CATEGORY + " text not null, "
-            + COLUMN_SUMMARY + " text not null,"
+            + COLUMN_TITLE + " text not null,"
             + COLUMN_DESCRIPTION + " text not null"
             + ");";
 

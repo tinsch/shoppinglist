@@ -4,9 +4,9 @@
     <string name="no_items">Currently there are no items in your shoppinglist</string>
     <string name="menu_insert">Add Item</string>
     <string name="menu_delete">Delete Item</string>
-    <string name="item_summary">Summary</string>
+    <string name="item_title">Title</string>
     <string name="item_description">Description</string>
-    <string name="item_edit_summary">Summary</string>
+    <string name="item_edit_title">Title</string>
     <string name="item_edit_description">Description</string>
     <string name="item_edit_confirm">Confirm</string>
 </resources>

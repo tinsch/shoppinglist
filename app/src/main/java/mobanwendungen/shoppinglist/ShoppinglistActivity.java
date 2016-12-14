@@ -96,7 +96,7 @@ public class ShoppinglistActivity extends ListActivity implements
 
         // Fields from the database (projection)
         // Must include the _id column for the adapter to work
-        String[] from = new String[] { ShoppinglistTable.COLUMN_SUMMARY };
+        String[] from = new String[] { ShoppinglistTable.COLUMN_TITLE};
         // Fields on the UI to which we map
         int[] to = new int[] { R.id.label };
 
@@ -117,7 +117,7 @@ public class ShoppinglistActivity extends ListActivity implements
     // creates a new loader after the initLoader () call
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = { ShoppinglistTable.COLUMN_ID, ShoppinglistTable.COLUMN_SUMMARY };
+        String[] projection = { ShoppinglistTable.COLUMN_ID, ShoppinglistTable.COLUMN_TITLE};
         CursorLoader cursorLoader = new CursorLoader(this,
                 ShoppinglistContentProvider.CONTENT_URI, projection, null, null, null);
         return cursorLoader;

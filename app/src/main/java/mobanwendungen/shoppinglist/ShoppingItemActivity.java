@@ -28,7 +28,7 @@ public class ShoppingItemActivity extends Activity {
         setContentView(R.layout.shoppinglist_item_edit);
 
         mCategory = (Spinner) findViewById(R.id.category);
-        mTitleText = (EditText) findViewById(R.id.item_edit_summary);
+        mTitleText = (EditText) findViewById(R.id.item_edit_title);
         mBodyText = (EditText) findViewById(R.id.item_edit_description);
         Button confirmButton = (Button) findViewById(R.id.item_edit_button);
 
@@ -60,7 +60,7 @@ public class ShoppingItemActivity extends Activity {
     }
 
     private void fillData(Uri uri) {
-        String[] projection = { ShoppinglistTable.COLUMN_SUMMARY,
+        String[] projection = { ShoppinglistTable.COLUMN_TITLE,
                 ShoppinglistTable.COLUMN_DESCRIPTION, ShoppinglistTable.COLUMN_CATEGORY };
         Cursor cursor = getContentResolver().query(uri, projection, null, null,
                 null);
@@ -78,7 +78,7 @@ public class ShoppingItemActivity extends Activity {
             }
 
             mTitleText.setText(cursor.getString(cursor
-                    .getColumnIndexOrThrow(ShoppinglistTable.COLUMN_SUMMARY)));
+                    .getColumnIndexOrThrow(ShoppinglistTable.COLUMN_TITLE)));
             mBodyText.setText(cursor.getString(cursor
                     .getColumnIndexOrThrow(ShoppinglistTable.COLUMN_DESCRIPTION)));
 
@@ -101,19 +101,19 @@ public class ShoppingItemActivity extends Activity {
 
     private void saveState() {
         String category = (String) mCategory.getSelectedItem();
-        String summary = mTitleText.getText().toString();
+        String itemTitle = mTitleText.getText().toString();
         String description = mBodyText.getText().toString();
 
-        // only save if either summary or description
+        // only save if either itemTitle or description
         // is available
 
-        if (description.length() == 0 && summary.length() == 0) {
+        if (description.length() == 0 && itemTitle.length() == 0) {
             return;
         }
 
         ContentValues values = new ContentValues();
         values.put(ShoppinglistTable.COLUMN_CATEGORY, category);
-        values.put(ShoppinglistTable.COLUMN_SUMMARY, summary);
+        values.put(ShoppinglistTable.COLUMN_TITLE, itemTitle);
         values.put(ShoppinglistTable.COLUMN_DESCRIPTION, description);
 
         if (todoUri == null) {
@@ -127,7 +127,7 @@ public class ShoppingItemActivity extends Activity {
     }
 
     private void makeToast() {
-        Toast.makeText(ShoppingItemActivity.this, "Please maintain a summary",
+        Toast.makeText(ShoppingItemActivity.this, "Please maintain a title",
                 Toast.LENGTH_LONG).show();
     }
 }

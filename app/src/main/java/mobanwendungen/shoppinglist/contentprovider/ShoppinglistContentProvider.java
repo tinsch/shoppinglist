@@ -175,7 +175,7 @@ public class ShoppinglistContentProvider extends ContentProvider {
 
     private void checkColumns(String[] projection) {
         String[] available = { ShoppinglistTable.COLUMN_CATEGORY,
-                ShoppinglistTable.COLUMN_SUMMARY, ShoppinglistTable.COLUMN_DESCRIPTION,
+                ShoppinglistTable.COLUMN_TITLE, ShoppinglistTable.COLUMN_DESCRIPTION,
                 ShoppinglistTable.COLUMN_ID };
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(
