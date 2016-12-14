@@ -53,7 +53,7 @@ public class ShoppinglistActivity extends ListActivity implements
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.insert:
-                createTodo();
+                createItem();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -74,7 +74,7 @@ public class ShoppinglistActivity extends ListActivity implements
         return super.onContextItemSelected(item);
     }
 
-    private void createTodo() {
+    private void createItem() {
         Intent i = new Intent(this, ShoppingItemActivity.class);
         startActivity(i);
     }
@@ -98,7 +98,7 @@ public class ShoppinglistActivity extends ListActivity implements
         // Must include the _id column for the adapter to work
         String[] from = new String[] { ShoppinglistTable.COLUMN_TITLE};
         // Fields on the UI to which we map
-        int[] to = new int[] { R.id.label };
+        int[] to = new int[] { R.id.text_of_row };
 
         getLoaderManager().initLoader(0, null, this);
         adapter = new SimpleCursorAdapter(this, R.layout.shoppinglist_row, null, from,
