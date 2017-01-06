@@ -11,7 +11,7 @@ public class ShoppingItemTable {
     public static final String COLUMN_TITLE = "title";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_SHOPPINGLISTKEY = "shoppinglistkey";
-    public static final String FOREIGN_KEY = "shoppinglist(_id)";
+    public static final String FOREIGN_KEY_STRING = "shoppinglist(_id)";
 
     private static final String DATABASE_CREATE = " create table "
             + TABLE_SHOPPINGITEM
@@ -21,7 +21,7 @@ public class ShoppingItemTable {
             + COLUMN_DESCRIPTION + " text, "
             + COLUMN_SHOPPINGLISTKEY + " integer not null, FOREIGN KEY("
             + COLUMN_SHOPPINGLISTKEY + ") REFERENCES "
-            + FOREIGN_KEY
+            + FOREIGN_KEY_STRING
             + ");";
 
     public static void onCreate(SQLiteDatabase database) {

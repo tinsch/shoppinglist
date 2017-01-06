@@ -2,6 +2,7 @@ package mobanwendungen.shoppinglist.contentprovider;
 
         import java.util.Arrays;
         import java.util.HashSet;
+        import java.util.List;
 
         import android.content.ContentProvider;
         import android.content.ContentResolver;
@@ -12,6 +13,8 @@ package mobanwendungen.shoppinglist.contentprovider;
         import android.database.sqlite.SQLiteQueryBuilder;
         import android.net.Uri;
         import android.text.TextUtils;
+
+        import mobanwendungen.shoppinglist.database.ShoppingItemTable;
         import mobanwendungen.shoppinglist.database.ShoppinglistDatabaseHelper;
         import mobanwendungen.shoppinglist.database.ShoppinglistTable;
 
@@ -21,7 +24,8 @@ public class ShoppinglistContentProvider extends ContentProvider {
     private ShoppinglistDatabaseHelper database;
 
     // used for the UriMatcher
-    private static final int SHOPPINGLIST = 10;
+    private static final int SHOPPINGLISTS = 10;
+    private static final int SHOPPINGLIST_ID = 15;
     private static final int SHOPPINGLIST_ITEM_ID = 20;
 
     private static final String AUTHORITY = "mobanwendungen.shoppinglist.contentprovider";
@@ -38,8 +42,9 @@ public class ShoppinglistContentProvider extends ContentProvider {
     private static final UriMatcher sURIMatcher = new UriMatcher(
             UriMatcher.NO_MATCH);
     static {
-        sURIMatcher.addURI(AUTHORITY, BASE_PATH, SHOPPINGLIST);
-        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", SHOPPINGLIST_ITEM_ID);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH, SHOPPINGLISTS);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", SHOPPINGLIST_ID);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#/#", SHOPPINGLIST_ITEM_ID);
     }
 
     @Override
@@ -58,16 +63,25 @@ public class ShoppinglistContentProvider extends ContentProvider {
         // check if the caller has requested a column which does not exists
         checkColumns(projection);
 
-        // Set the table
-        queryBuilder.setTables(ShoppinglistTable.TABLE_SHOPPINGLIST);
-
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
-            case SHOPPINGLIST:
+            case SHOPPINGLISTS:
+                // Set the table
+                queryBuilder.setTables(ShoppinglistTable.TABLE_SHOPPINGLIST);
+                break;
+            case SHOPPINGLIST_ID:
+                queryBuilder.setTables(ShoppinglistTable.TABLE_SHOPPINGLIST);
+                queryBuilder.appendWhere(ShoppinglistTable.COLUMN_ID + "="
+                        + uri.getLastPathSegment());
                 break;
             case SHOPPINGLIST_ITEM_ID:
-                // adding the ID to the original query
-                queryBuilder.appendWhere(ShoppinglistTable.COLUMN_ID + "="
+                queryBuilder.setTables(ShoppingItemTable.TABLE_SHOPPINGITEM);
+                List<String> pathSegments = uri.getPathSegments();
+                String secondLastPathSegment = pathSegments.get(pathSegments.size() - 2);
+                // adding the IDs to the original query
+                queryBuilder.appendWhere(ShoppingItemTable.COLUMN_SHOPPINGLISTKEY + "="
+                        + secondLastPathSegment);
+                queryBuilder.appendWhere(ShoppingItemTable.COLUMN_ID + "="
                         + uri.getLastPathSegment());
                 break;
             default:
@@ -94,14 +108,17 @@ public class ShoppinglistContentProvider extends ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         long id = 0;
         switch (uriType) {
-            case SHOPPINGLIST:
+            case SHOPPINGLISTS:
                 id = sqlDB.insert(ShoppinglistTable.TABLE_SHOPPINGLIST, null, values);
-                break;
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(BASE_PATH + "/" + id);
+            case SHOPPINGLIST_ID:
+                id = sqlDB.insert(ShoppingItemTable.TABLE_SHOPPINGITEM, null, values);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return Uri.parse(BASE_PATH + "/" + uri.getLastPathSegment() + "/" + id);
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
-        getContext().getContentResolver().notifyChange(uri, null);
-        return Uri.parse(BASE_PATH + "/" + id);
     }
 
     @Override
@@ -110,21 +127,25 @@ public class ShoppinglistContentProvider extends ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsDeleted = 0;
         switch (uriType) {
-            case SHOPPINGLIST:
+            case SHOPPINGLIST_ID:
                 rowsDeleted = sqlDB.delete(ShoppinglistTable.TABLE_SHOPPINGLIST, selection,
                         selectionArgs);
                 break;
             case SHOPPINGLIST_ITEM_ID:
                 String id = uri.getLastPathSegment();
+                List<String> pathSegments = uri.getPathSegments();
+                String shoppinglist_id = pathSegments.get(pathSegments.size() - 2);
                 if (TextUtils.isEmpty(selection)) {
                     rowsDeleted = sqlDB.delete(
-                            ShoppinglistTable.TABLE_SHOPPINGLIST,
-                            ShoppinglistTable.COLUMN_ID + "=" + id,
+                            ShoppingItemTable.TABLE_SHOPPINGITEM,
+                            ShoppingItemTable.COLUMN_ID + "=" + id
+                            + " and " +
+                            ShoppingItemTable.COLUMN_SHOPPINGLISTKEY + "=" + shoppinglist_id,
                             null);
                 } else {
                     rowsDeleted = sqlDB.delete(
-                            ShoppinglistTable.TABLE_SHOPPINGLIST,
-                            ShoppinglistTable.COLUMN_ID + "=" + id
+                            ShoppingItemTable.TABLE_SHOPPINGITEM,
+                            ShoppingItemTable.COLUMN_ID + "=" + id
                                     + " and " + selection,
                             selectionArgs);
                 }
@@ -144,7 +165,7 @@ public class ShoppinglistContentProvider extends ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsUpdated = 0;
         switch (uriType) {
-            case SHOPPINGLIST:
+            case SHOPPINGLIST_ID:
                 rowsUpdated = sqlDB.update(ShoppinglistTable.TABLE_SHOPPINGLIST,
                         values,
                         selection,
@@ -152,15 +173,19 @@ public class ShoppinglistContentProvider extends ContentProvider {
                 break;
             case SHOPPINGLIST_ITEM_ID:
                 String id = uri.getLastPathSegment();
+                List<String> pathSegments = uri.getPathSegments();
+                String shoppinglist_id = pathSegments.get(pathSegments.size() - 2);
                 if (TextUtils.isEmpty(selection)) {
-                    rowsUpdated = sqlDB.update(ShoppinglistTable.TABLE_SHOPPINGLIST,
+                    rowsUpdated = sqlDB.update(ShoppingItemTable.TABLE_SHOPPINGITEM,
                             values,
-                            ShoppinglistTable.COLUMN_ID + "=" + id,
+                            ShoppingItemTable.COLUMN_ID + "=" + id
+                            + " and " +
+                            ShoppingItemTable.COLUMN_SHOPPINGLISTKEY + "=" + shoppinglist_id,
                             null);
                 } else {
-                    rowsUpdated = sqlDB.update(ShoppinglistTable.TABLE_SHOPPINGLIST,
+                    rowsUpdated = sqlDB.update(ShoppingItemTable.TABLE_SHOPPINGITEM,
                             values,
-                            ShoppinglistTable.COLUMN_ID + "=" + id
+                            ShoppingItemTable.COLUMN_ID + "=" + id
                                     + " and "
                                     + selection,
                             selectionArgs);
@@ -174,9 +199,14 @@ public class ShoppinglistContentProvider extends ContentProvider {
     }
 
     private void checkColumns(String[] projection) {
-        String[] available = { ShoppinglistTable.COLUMN_CATEGORY,
-                ShoppinglistTable.COLUMN_TITLE, ShoppinglistTable.COLUMN_DESCRIPTION,
-                ShoppinglistTable.COLUMN_ID };
+        String[] available = {
+                ShoppinglistTable.COLUMN_ID,
+                ShoppinglistTable.COLUMN_TITLE,
+                ShoppingItemTable.COLUMN_ID,
+                ShoppingItemTable.COLUMN_TITLE,
+                ShoppingItemTable.COLUMN_DESCRIPTION,
+                ShoppingItemTable.COLUMN_SHOPPINGLISTKEY
+                };
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(
                     Arrays.asList(projection));
