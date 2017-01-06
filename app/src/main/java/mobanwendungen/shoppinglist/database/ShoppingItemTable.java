@@ -9,6 +9,7 @@ public class ShoppingItemTable {
     public static final String TABLE_SHOPPINGITEM = "shoppingitem";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_SHOPPINGLISTKEY = "shoppinglistkey";
     public static final String FOREIGN_KEY = "shoppinglist(_id)";
 
@@ -17,6 +18,7 @@ public class ShoppingItemTable {
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_TITLE + " text not null, "
+            + COLUMN_DESCRIPTION + " text, "
             + COLUMN_SHOPPINGLISTKEY + " integer not null, FOREIGN KEY("
             + COLUMN_SHOPPINGLISTKEY + ") REFERENCES "
             + FOREIGN_KEY
