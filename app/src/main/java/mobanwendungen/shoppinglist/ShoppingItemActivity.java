@@ -60,7 +60,7 @@ public class ShoppingItemActivity extends Activity {
         });
     }
 
-    //Todo: geht das nicht leichter zu implementieren?!
+    //Todo: geht das nicht leichter zu implementieren?! Und umbenennen in getData (weil ist ja nur 1 Element)
     private void fillData(Uri uri) {
         String[] projection = { ShoppinglistTable.COLUMN_TITLE,
                 ShoppinglistTable.COLUMN_DESCRIPTION, ShoppinglistTable.COLUMN_CATEGORY };

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -7,7 +7,10 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/footer"
+        android:paddingBottom="5dp"
+        android:paddingLeft="15dp">
     </ListView>
 
     <TextView
@@ -16,5 +19,35 @@
         android:layout_height="wrap_content"
         android:text="@string/no_items" />
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal" >
 
+        <Button
+            android:id="@+id/button_undo"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_weight="0.5"
+            android:padding="5dp"
+            android:onClick="onClick"
+            android:text="@string/button_undo" />
+
+        <Button
+            android:id="@+id/button_add"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_weight="0.5"
+            android:padding="5dp"
+            android:onClick="onClick"
+            android:text="@string/button_add" />
+    </LinearLayout>
+
+    <!--
+     android:background="@android:color/transparent"
+    android:drawableLeft="@drawable/carrot_grey"
+    android:textColor="@color/grey"-->
+
+</RelativeLayout>

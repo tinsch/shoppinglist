@@ -10,4 +10,6 @@
     <string name="item_edit_description">Description</string>
     <string name="item_edit_confirm">Confirm</string>
    <string name="error_message_edit_item">Please maintain a title</string>
+    <string name="button_add">Add Item</string>
+    <string name="button_undo">Undo</string>
 </resources>

@@ -8,6 +8,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+
 import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
 import mobanwendungen.shoppinglist.database.ShoppinglistTable;
 
@@ -24,6 +26,7 @@ import mobanwendungen.shoppinglist.database.ShoppinglistTable;
 public class ShoppinglistActivity extends ListActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String DEBUG_LOG = "Shoppinglist Activity: ";
     private static final int ACTIVITY_CREATE = 0;
     private static final int ACTIVITY_EDIT = 1;
     private static final int DELETE_ID = Menu.FIRST + 1;
@@ -66,14 +69,32 @@ public class ShoppinglistActivity extends ListActivity implements
             case DELETE_ID:
                 AdapterContextMenuInfo info = (AdapterContextMenuInfo) item
                         .getMenuInfo();
+                Log.d(DEBUG_LOG, info.toString() + "and info id:" + info.id);
                 Uri uri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/"
                         + info.id);
+                saveLastAction(uri);
                 getContentResolver().delete(uri, null, null);
                 fillData();
                 return true;
         }
         return super.onContextItemSelected(item);
     }
+
+    public void saveLastAction(Uri itemUri){
+
+    }
+
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.button_add:
+                createItem();
+                break;
+            case R.id.button_undo:
+                //ToDO something
+                break;
+        }
+    }
+
 
     private void createItem() {
         Intent i = new Intent(this, ShoppingItemActivity.class);
@@ -87,6 +108,7 @@ public class ShoppinglistActivity extends ListActivity implements
         Intent i = new Intent(this, ShoppingItemActivity.class);
         //Todo: fragen, ob andere Key sinnvoll waere!?
         Uri itemUri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/" + id);
+        saveLastAction(itemUri);
         i.putExtra(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, itemUri);
         startActivity(i);
     }
@@ -94,6 +116,23 @@ public class ShoppinglistActivity extends ListActivity implements
 
 
     private void fillData() {
+/*
+       //I would like to fill two textfields in
+
+        String[] from = new String[] { ShoppinglistTable.COLUMN_TITLE, ShoppinglistTable.COLUMN_DESCRIPTION};
+
+        // Fields on the UI to which we map
+        int[] to = new int[] { R.id.FirstColumn, R.id.SecondColumn };
+        Log.d(DEBUG_LOG, "No exception yet");
+        getLoaderManager().initLoader(0, null, this);
+        Log.d(DEBUG_LOG, "No exception yet");
+        adapter = new SimpleCursorAdapter(this, R.layout.shoppinglist_rows, null, from,
+                to, 0);
+        Log.d(DEBUG_LOG, "But now I guess.");
+        setListAdapter(adapter);
+        Log.d(DEBUG_LOG, "And the latest now.");
+*/
+
 
         // Fields from the database (projection)
         // Must include the _id column for the adapter to work
@@ -104,8 +143,8 @@ public class ShoppinglistActivity extends ListActivity implements
         getLoaderManager().initLoader(0, null, this);
         adapter = new SimpleCursorAdapter(this, R.layout.shoppinglist_row, null, from,
                 to, 0);
-
         setListAdapter(adapter);
+
     }
 
     @Override
