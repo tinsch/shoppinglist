@@ -13,12 +13,14 @@ package mobanwendungen.shoppinglist;
         import android.widget.Toast;
         import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
         import mobanwendungen.shoppinglist.database.ShoppinglistTable;
+        import mobanwendungen.shoppinglist.remotedatabase.SynchronizeRemoteDatabase;
 
 
 public class ShoppingItemActivity extends Activity {
     private Spinner mCategory;
     private EditText mTitleText;
     private EditText mBodyText;
+    private SynchronizeRemoteDatabase remoteDB;
 
     private Uri itemUri;
 
@@ -26,6 +28,9 @@ public class ShoppingItemActivity extends Activity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.shoppinglist_item_edit);
+
+        remoteDB = new SynchronizeRemoteDatabase();
+        remoteDB.connect(this);
 
         mCategory = (Spinner) findViewById(R.id.category);
         mTitleText = (EditText) findViewById(R.id.item_edit_title);
