@@ -33,7 +33,6 @@ public class ShoppingItemActivity extends Activity {
         setContentView(R.layout.shoppinglist_item_edit);
 
         remoteDB = new SynchronizeRemoteDatabase(this);
-        remoteDB.connect();
 
         mCategory = (Spinner) findViewById(R.id.category);
         mTitleText = (EditText) findViewById(R.id.item_edit_title);
