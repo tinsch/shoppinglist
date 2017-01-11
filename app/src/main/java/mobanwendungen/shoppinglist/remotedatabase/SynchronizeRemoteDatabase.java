@@ -23,12 +23,19 @@ public class SynchronizeRemoteDatabase {
     private static final String DEBUG_TAG = "SynchronizeRemoteDB: ";
     private static String DELETEQUERY = "DELETE FROM shoppinglist WHERE _id = ";
     private static String INSERTQUERY = "INSERT INTO shoppinglist(category, title, description) VALUES ";
+    private static String CREATETABLEQUERY = "CREATE TABLE shoppinglist(_id SERIAL primary key, category VARCHAR(20) not null, title VARCHAR(15) not null, description VARCHAR(30) not null);";
+    private static String SELECTQUERY = "SELECT * FROM shoppinglist;";
     private Context m_context;
     private String query;
 
 
     public SynchronizeRemoteDatabase(Context context){
         m_context = context;
+    }
+
+    public void fetchData(){
+        this.query = SELECTQUERY;
+        connect();
     }
 
     public void insert(Query query){
@@ -42,7 +49,7 @@ public class SynchronizeRemoteDatabase {
     }
 
     public void createTable(){
-        this.query = "CREATE TABLE shoppinglist(_id SERIAL primary key, category VARCHAR(20) not null, title VARCHAR(15) not null, description VARCHAR(30) not null);";
+        this.query = CREATETABLEQUERY;
         connect();
     }
 
@@ -94,12 +101,13 @@ public class SynchronizeRemoteDatabase {
             try {
                 java.sql.Connection con = DriverManager.getConnection(url, "_s0551814__shoppinglist_generic", "shoppinglist1234");
                 java.sql.Statement st = con.createStatement();
-                java.sql.ResultSet rs = st.executeQuery(query);
+                java.sql.ResultSet result = st.executeQuery(query);
                 //  list = new ArrayList<objClass>();
 
-                while (rs.next()) {
-                    String field= rs.getString("field");
-                    //        MainActivity.playerList.add(new objectClass(field));
+                while (result.next()) {
+                    String title =  result.getString("title");
+                    String description =  result.getString("description");
+                    String category =  result.getString("category");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
