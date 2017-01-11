@@ -8,6 +8,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
 import mobanwendungen.shoppinglist.database.ShoppinglistTable;
+import mobanwendungen.shoppinglist.remotedatabase.SynchronizeRemoteDatabase;
 
 
 public class ShoppinglistActivity extends ListActivity implements
@@ -27,6 +29,7 @@ public class ShoppinglistActivity extends ListActivity implements
     private static final int ACTIVITY_CREATE = 0;
     private static final int ACTIVITY_EDIT = 1;
     private static final int DELETE_ID = Menu.FIRST + 1;
+    private static final String DEBUG_LOG = "ShoppinglistActivity: ";
     // private Cursor cursor;
     private SimpleCursorAdapter adapter;
 
@@ -61,6 +64,9 @@ public class ShoppinglistActivity extends ListActivity implements
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+
+        SynchronizeRemoteDatabase syncRemoteDB = new SynchronizeRemoteDatabase(this);
+
         switch (item.getItemId()) {
             //Todo: check if getItemId always returns 2 when an item is pushed long!?!
             case DELETE_ID:
@@ -68,7 +74,14 @@ public class ShoppinglistActivity extends ListActivity implements
                         .getMenuInfo();
                 Uri uri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/"
                         + info.id);
-                getContentResolver().delete(uri, null, null);
+                try {
+                    getContentResolver().delete(uri, null, null);
+                    syncRemoteDB.delete(info.id);
+                } catch (IllegalArgumentException e){
+                    e.printStackTrace();
+                } catch (Exception e){
+                    Log.d(DEBUG_LOG, "Any other error when deleting item");
+                }
                 fillData();
                 return true;
         }
@@ -88,6 +101,7 @@ public class ShoppinglistActivity extends ListActivity implements
         //Todo: fragen, ob andere Key sinnvoll waere!?
         Uri itemUri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/" + id);
         i.putExtra(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, itemUri);
+        i.putExtra("ID", id);
         startActivity(i);
     }
 

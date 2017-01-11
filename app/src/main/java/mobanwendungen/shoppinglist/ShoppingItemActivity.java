@@ -6,6 +6,7 @@ package mobanwendungen.shoppinglist;
         import android.net.Uri;
         import android.os.Bundle;
         import android.text.TextUtils;
+        import android.util.Log;
         import android.view.View;
         import android.widget.Button;
         import android.widget.EditText;
@@ -13,6 +14,7 @@ package mobanwendungen.shoppinglist;
         import android.widget.Toast;
         import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
         import mobanwendungen.shoppinglist.database.ShoppinglistTable;
+        import mobanwendungen.shoppinglist.remotedatabase.Query;
         import mobanwendungen.shoppinglist.remotedatabase.SynchronizeRemoteDatabase;
 
 
@@ -23,14 +25,15 @@ public class ShoppingItemActivity extends Activity {
     private SynchronizeRemoteDatabase remoteDB;
 
     private Uri itemUri;
+    private long id;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.shoppinglist_item_edit);
 
-        remoteDB = new SynchronizeRemoteDatabase();
-        remoteDB.connect(this);
+        remoteDB = new SynchronizeRemoteDatabase(this);
+        remoteDB.connect();
 
         mCategory = (Spinner) findViewById(R.id.category);
         mTitleText = (EditText) findViewById(R.id.item_edit_title);
@@ -46,9 +49,10 @@ public class ShoppingItemActivity extends Activity {
 
         // Or passed from the other activity
         if (extras != null) {
+        //    Log.d( //itemUri.toString());
             itemUri = extras
                     .getParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE);
-
+            id = extras.getParcelable("ID");
             fillData(itemUri);
         }
 
@@ -122,14 +126,19 @@ public class ShoppingItemActivity extends Activity {
         values.put(ShoppinglistTable.COLUMN_CATEGORY, category);
         values.put(ShoppinglistTable.COLUMN_TITLE, itemTitle);
         values.put(ShoppinglistTable.COLUMN_DESCRIPTION, description);
+        Query query = new Query(itemTitle, category, description);
 
         if (itemUri == null) {
-            // New todo
+            // New, if it's a new entry
             itemUri = getContentResolver().insert(
                     ShoppinglistContentProvider.CONTENT_URI, values);
+            remoteDB.insert(query);
+
         } else {
-            // Update todo
+            // Update, if entry already exists
             getContentResolver().update(itemUri, values, null, null);
+            remoteDB.delete(id);
+            remoteDB.insert(query);
         }
     }
 
