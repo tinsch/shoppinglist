@@ -130,6 +130,7 @@ public class SynchronizeRemoteDatabase {
                                 ShoppinglistContentProvider.CONTENT_URI, values);
                         Log.d(DEBUG_TAG, "Id, Title, Description and Category should have been entered in Table: " + result.getString("_id") + ", " + result.getString("title") + ", " + result.getString("description") + ", " +result.getString("category"));
                     }
+                    databaseHelper.close();
                 }catch (java.sql.SQLException e){
                     e.printStackTrace();
                 }
@@ -141,8 +142,6 @@ public class SynchronizeRemoteDatabase {
 
         protected void onPostExecute(java.sql.ResultSet result) {
             mProgressDialog.dismiss();
-            ShoppinglistActivity activity = (ShoppinglistActivity) m_context;
-            activity.fillData();
         }
 
 
