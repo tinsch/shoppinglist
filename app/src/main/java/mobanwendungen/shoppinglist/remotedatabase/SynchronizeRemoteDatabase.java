@@ -1,5 +1,6 @@
 package mobanwendungen.shoppinglist.remotedatabase;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 
+import mobanwendungen.shoppinglist.ShoppinglistActivity;
 import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
 import mobanwendungen.shoppinglist.database.ShoppinglistDatabaseHelper;
 import mobanwendungen.shoppinglist.database.ShoppinglistTable;
@@ -43,11 +45,13 @@ public class SynchronizeRemoteDatabase {
     public void insert(OwnQuery query){
         this.query = INSERTQUERY + query.toString();
         connect();
+        fetchData();
     }
 
     public void delete(long id){
         this.query = DELETEQUERY + id + ";";
         connect();
+        fetchData();
     }
 
     public void createTable(){
@@ -118,12 +122,13 @@ public class SynchronizeRemoteDatabase {
                 Log.d(DEBUG_TAG, "While iteration starts: ");
                 try {
                     while (result.next()) {
+                        values.put(ShoppinglistTable.COLUMN_ID, result.getString("_id"));
                         values.put(ShoppinglistTable.COLUMN_CATEGORY, result.getString("category"));
                         values.put(ShoppinglistTable.COLUMN_TITLE, result.getString("title"));
                         values.put(ShoppinglistTable.COLUMN_DESCRIPTION, result.getString("description"));
                         m_context.getContentResolver().insert(
                                 ShoppinglistContentProvider.CONTENT_URI, values);
-                        Log.d(DEBUG_TAG, "Title, Description and Category should have been entered in Table: " + result.getString("title") + ", " + result.getString("description") + ", " +result.getString("category"));
+                        Log.d(DEBUG_TAG, "Id, Title, Description and Category should have been entered in Table: " + result.getString("_id") + ", " + result.getString("title") + ", " + result.getString("description") + ", " +result.getString("category"));
                     }
                 }catch (java.sql.SQLException e){
                     e.printStackTrace();
@@ -136,6 +141,8 @@ public class SynchronizeRemoteDatabase {
 
         protected void onPostExecute(java.sql.ResultSet result) {
             mProgressDialog.dismiss();
+            ShoppinglistActivity activity = (ShoppinglistActivity) m_context;
+            activity.fillData();
         }
 
 

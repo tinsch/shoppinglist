@@ -111,7 +111,7 @@ public class ShoppinglistActivity extends ListActivity implements
 
 
 
-    private void fillData() {
+    public void fillData() {
 
         // Fields from the database (projection)
         // Must include the _id column for the adapter to work
