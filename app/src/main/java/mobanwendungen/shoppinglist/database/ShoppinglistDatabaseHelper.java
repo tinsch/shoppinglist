@@ -16,7 +16,10 @@ public class ShoppinglistDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         ShoppinglistTable.onCreate(database);
+    }
 
+    public static void dropTable(SQLiteDatabase database){
+        ShoppinglistTable.dropTable(database);
     }
 
     @Override

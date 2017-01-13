@@ -6,7 +6,6 @@ package mobanwendungen.shoppinglist;
         import android.net.Uri;
         import android.os.Bundle;
         import android.text.TextUtils;
-        import android.util.Log;
         import android.view.View;
         import android.widget.Button;
         import android.widget.EditText;
@@ -14,7 +13,7 @@ package mobanwendungen.shoppinglist;
         import android.widget.Toast;
         import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
         import mobanwendungen.shoppinglist.database.ShoppinglistTable;
-        import mobanwendungen.shoppinglist.remotedatabase.Query;
+        import mobanwendungen.shoppinglist.remotedatabase.OwnQuery;
         import mobanwendungen.shoppinglist.remotedatabase.SynchronizeRemoteDatabase;
 
 
@@ -122,25 +121,28 @@ public class ShoppingItemActivity extends Activity {
         }
 
         ContentValues values = new ContentValues();
+      //  values.put(ShoppinglistTable.COLUMN_ID, )
         values.put(ShoppinglistTable.COLUMN_CATEGORY, category);
         values.put(ShoppinglistTable.COLUMN_TITLE, itemTitle);
         values.put(ShoppinglistTable.COLUMN_DESCRIPTION, description);
-        Query query = new Query(itemTitle, category, description);
+        OwnQuery ownQuery = new OwnQuery(itemTitle, category, description);
 
         if (itemUri == null) {
             // New, if it's a new entry
             itemUri = getContentResolver().insert(
                     ShoppinglistContentProvider.CONTENT_URI, values);
-            remoteDB.insert(query);
-
+            remoteDB.insert(ownQuery);
         } else {
             // Update, if entry already exists
             getContentResolver().update(itemUri, values, null, null);
             remoteDB.delete(id);
-            remoteDB.insert(query);
+            remoteDB.insert(ownQuery);
         }
     }
 
+    /*
+    Notification, if user forgot to enter a title
+     */
     private void makeToast() {
         Toast.makeText(ShoppingItemActivity.this, R.string.error_message_edit_item,
                 Toast.LENGTH_LONG).show();
