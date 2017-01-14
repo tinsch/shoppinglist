@@ -8,6 +8,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
 import mobanwendungen.shoppinglist.database.ShoppinglistTable;
+import mobanwendungen.shoppinglist.remotedatabase.SynchronizeRemoteDatabase;
 
 
 public class ShoppinglistActivity extends ListActivity implements
@@ -27,16 +29,23 @@ public class ShoppinglistActivity extends ListActivity implements
     private static final int ACTIVITY_CREATE = 0;
     private static final int ACTIVITY_EDIT = 1;
     private static final int DELETE_ID = Menu.FIRST + 1;
+    private static final String DEBUG_TAG = "ShoppinglistActivity: ";
     // private Cursor cursor;
     private SimpleCursorAdapter adapter;
+    SynchronizeRemoteDatabase syncRemoteDB;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(DEBUG_TAG, "onCreate entered.");
+        syncRemoteDB = new SynchronizeRemoteDatabase(this);
+        syncRemoteDB.fetchData();
+        Log.d(DEBUG_TAG, "fetchData called.");
         setContentView(R.layout.shoppinglist_list);
         this.getListView().setDividerHeight(2);
         fillData();
+        Log.d(DEBUG_TAG, "fillData() called");
         registerForContextMenu(getListView());
     }
 
@@ -61,6 +70,7 @@ public class ShoppinglistActivity extends ListActivity implements
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+
         switch (item.getItemId()) {
             //Todo: check if getItemId always returns 2 when an item is pushed long!?!
             case DELETE_ID:
@@ -68,7 +78,14 @@ public class ShoppinglistActivity extends ListActivity implements
                         .getMenuInfo();
                 Uri uri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/"
                         + info.id);
-                getContentResolver().delete(uri, null, null);
+                try {
+                    getContentResolver().delete(uri, null, null);
+                    syncRemoteDB.delete(info.id);
+                } catch (IllegalArgumentException e){
+                    e.printStackTrace();
+                } catch (Exception e){
+                    Log.d(DEBUG_TAG, "Any other error when deleting item");
+                }
                 fillData();
                 return true;
         }
@@ -88,16 +105,17 @@ public class ShoppinglistActivity extends ListActivity implements
         //Todo: fragen, ob andere Key sinnvoll waere!?
         Uri itemUri = Uri.parse(ShoppinglistContentProvider.CONTENT_URI + "/" + id);
         i.putExtra(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, itemUri);
+        i.putExtra("ID", id);
         startActivity(i);
     }
 
 
 
-    private void fillData() {
-
+    public void fillData() {
         // Fields from the database (projection)
         // Must include the _id column for the adapter to work
         String[] from = new String[] { ShoppinglistTable.COLUMN_TITLE};
+        Log.d(DEBUG_TAG, "in fillData() COLUMN_TITLE:" + ShoppinglistTable.COLUMN_TITLE);
         // Fields on the UI to which we map
         int[] to = new int[] { R.id.text_of_row };
 
