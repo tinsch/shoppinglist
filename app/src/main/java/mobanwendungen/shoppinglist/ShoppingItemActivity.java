@@ -114,7 +114,7 @@ public class ShoppingItemActivity extends Activity {
     protected void onPause() {
         Log.d(DEBUG_TAG, "onPause() was called.");
         super.onPause();
-      //  saveState();
+        saveState();
     }
 
     private void saveState() {
@@ -142,6 +142,7 @@ public class ShoppingItemActivity extends Activity {
             // New, if it's a new entry
          //   itemUri = getContentResolver().insert(
            //         ShoppinglistContentProvider.CONTENT_URI, values);
+            Log.d(DEBUG_TAG, "remoteDB.insert(ownQuery) called.");
             remoteDB.insert(ownQuery);
         } else {
             // Update, if entry already exists
