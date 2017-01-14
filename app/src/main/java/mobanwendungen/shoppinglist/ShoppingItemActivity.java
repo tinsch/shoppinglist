@@ -6,6 +6,7 @@ package mobanwendungen.shoppinglist;
         import android.net.Uri;
         import android.os.Bundle;
         import android.text.TextUtils;
+        import android.util.Log;
         import android.view.View;
         import android.widget.Button;
         import android.widget.EditText;
@@ -22,6 +23,7 @@ public class ShoppingItemActivity extends Activity {
     private EditText mTitleText;
     private EditText mBodyText;
     private SynchronizeRemoteDatabase remoteDB;
+    private static String DEBUG_TAG = "ShoppingItemActivity: ";
 
     private Uri itemUri;
     private long id;
@@ -30,6 +32,7 @@ public class ShoppingItemActivity extends Activity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.shoppinglist_item_edit);
+        Log.d(DEBUG_TAG, "onCreate() was called.");
 
         remoteDB = new SynchronizeRemoteDatabase(this);
 
@@ -55,7 +58,11 @@ public class ShoppingItemActivity extends Activity {
         }
 
         confirmButton.setOnClickListener(new View.OnClickListener() {
+
+
             public void onClick(View view) {
+                Log.d(DEBUG_TAG, "onCklickListener() was called.");
+
                 if (TextUtils.isEmpty(mTitleText.getText().toString())) {
                     makeToast();
                 } else {
@@ -69,6 +76,7 @@ public class ShoppingItemActivity extends Activity {
 
     //Todo: geht das nicht leichter zu implementieren?!
     private void fillData(Uri uri) {
+        Log.d(DEBUG_TAG, "fillData() was called.");
         String[] projection = { ShoppinglistTable.COLUMN_TITLE,
                 ShoppinglistTable.COLUMN_DESCRIPTION, ShoppinglistTable.COLUMN_CATEGORY };
         Cursor cursor = getContentResolver().query(uri, projection, null, null,
@@ -97,6 +105,7 @@ public class ShoppingItemActivity extends Activity {
     }
 
     protected void onSaveInstanceState(Bundle outState) {
+        Log.d(DEBUG_TAG, "onSaveInstanceState() was called.");
         super.onSaveInstanceState(outState);
         saveState();
         outState.putParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE, itemUri);
@@ -104,11 +113,13 @@ public class ShoppingItemActivity extends Activity {
 
     @Override
     protected void onPause() {
+        Log.d(DEBUG_TAG, "onPause() was called.");
         super.onPause();
         saveState();
     }
 
     private void saveState() {
+        Log.d(DEBUG_TAG, "saveState() was called.");
         String category = (String) mCategory.getSelectedItem();
         String itemTitle = mTitleText.getText().toString();
         String description = mBodyText.getText().toString();
@@ -121,20 +132,21 @@ public class ShoppingItemActivity extends Activity {
         }
 
         ContentValues values = new ContentValues();
-      //  values.put(ShoppinglistTable.COLUMN_ID, )
+//        values.put(ShoppinglistTable.COLUMN_ID, )
         values.put(ShoppinglistTable.COLUMN_CATEGORY, category);
         values.put(ShoppinglistTable.COLUMN_TITLE, itemTitle);
         values.put(ShoppinglistTable.COLUMN_DESCRIPTION, description);
-        OwnQuery ownQuery = new OwnQuery(itemTitle, category, description);
+        OwnQuery ownQuery = new OwnQuery(category, itemTitle, description);
 
         if (itemUri == null) {
+
             // New, if it's a new entry
-            itemUri = getContentResolver().insert(
-                    ShoppinglistContentProvider.CONTENT_URI, values);
+         //   itemUri = getContentResolver().insert(
+           //         ShoppinglistContentProvider.CONTENT_URI, values);
             remoteDB.insert(ownQuery);
         } else {
             // Update, if entry already exists
-            getContentResolver().update(itemUri, values, null, null);
+           // getContentResolver().update(itemUri, values, null, null);
             remoteDB.delete(id);
             remoteDB.insert(ownQuery);
         }

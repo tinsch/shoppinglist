@@ -1,6 +1,6 @@
 package mobanwendungen.shoppinglist.remotedatabase;
 
-import android.app.Activity;
+
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,11 +9,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 
-import mobanwendungen.shoppinglist.ShoppinglistActivity;
 import mobanwendungen.shoppinglist.contentprovider.ShoppinglistContentProvider;
 import mobanwendungen.shoppinglist.database.ShoppinglistDatabaseHelper;
 import mobanwendungen.shoppinglist.database.ShoppinglistTable;
@@ -31,9 +34,11 @@ public class SynchronizeRemoteDatabase {
     private static String SELECTQUERY = "SELECT * FROM shoppinglist;";
     private Context m_context;
     private String query;
+    private boolean fetchAfterQuery;
 
 
     public SynchronizeRemoteDatabase(Context context){
+        fetchAfterQuery = false;
         m_context = context;
     }
 
@@ -43,15 +48,16 @@ public class SynchronizeRemoteDatabase {
     }
 
     public void insert(OwnQuery query){
+        fetchAfterQuery = true;
         this.query = INSERTQUERY + query.toString();
+        Log.d(DEBUG_TAG, "following query is called: " + query);
         connect();
-        fetchData();
     }
 
     public void delete(long id){
+        fetchAfterQuery = true;
         this.query = DELETEQUERY + id + ";";
         connect();
-        fetchData();
     }
 
     public void createTable(){
@@ -77,7 +83,7 @@ public class SynchronizeRemoteDatabase {
     /**
      * makes an asynchronous request from URL
      */
-    private class Download extends AsyncTask<Void, Void, java.sql.ResultSet > {
+    private class Download extends AsyncTask<Void, Void, ResultSet > {
 
         ProgressDialog mProgressDialog;
         Context context;
@@ -90,14 +96,16 @@ public class SynchronizeRemoteDatabase {
 
         protected void onPreExecute() {
             Log.d(DEBUG_TAG, "onPreExecute() in AsyncTask Download is called");
-            mProgressDialog = ProgressDialog.show(context, "",
-                    "Please wait, getting database...");
+        /*    mProgressDialog = ProgressDialog.show(context, "",
+                    "Please wait, getting database...");*/
         }
 
-        protected java.sql.ResultSet  doInBackground(Void... params) {
+        protected ResultSet doInBackground(Void... params) {
             Log.d(DEBUG_TAG, "doInBackground() in AsyncTask Download is called");
-            java.sql.ResultSet result = null;
+            ResultSet result = null;
             //  DriverManager.register(new org.postgresql.Driver());
+            Connection con = null;
+            Statement st = null;
             try {
                 Class.forName("org.postgresql.Driver");
             } catch (ClassNotFoundException e){
@@ -105,10 +113,11 @@ public class SynchronizeRemoteDatabase {
                 Log.d(DEBUG_TAG, "Class.forName Failure");
             }
             try {
-                java.sql.Connection con = DriverManager.getConnection(url, "_s0551814__shoppinglist_generic", "shoppinglist1234");
-                java.sql.Statement st = con.createStatement();
+                 con = DriverManager.getConnection(url, "_s0551814__shoppinglist_generic", "shoppinglist1234");
+                 st = con.createStatement();
                 result = st.executeQuery(query);
                 //  list = new ArrayList<objClass>();
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -134,14 +143,22 @@ public class SynchronizeRemoteDatabase {
                 }catch (java.sql.SQLException e){
                     e.printStackTrace();
                 }
-
-
+            }
+            try {
+                result.close();
+                st.close();
+                con.close();
+            } catch (Exception e){
+                e.printStackTrace();
             }
             return result;
         }
 
         protected void onPostExecute(java.sql.ResultSet result) {
-            mProgressDialog.dismiss();
+            if (fetchAfterQuery){
+                fetchAfterQuery = false;
+                fetchData();
+            }
         }
 
 
