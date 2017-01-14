@@ -1,17 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/text_of_row"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
+        android:layout_marginLeft="10dp"
         android:lines="1"
         android:text="@+id/TextView01"
         android:textSize="24dp"
         >
     </TextView>
+
+    <!--  ADDED SPACER VIEW -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        />
+    <!-- /ADDED SPACER VIEW -->
+
+
+    <Button
+        android:id="@+id/delete_button_row"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:text="delete"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="15dp"
+        >
+    </Button>
 
 </LinearLayout>
