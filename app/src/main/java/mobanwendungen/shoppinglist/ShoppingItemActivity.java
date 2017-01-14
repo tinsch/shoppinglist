@@ -147,8 +147,7 @@ public class ShoppingItemActivity extends Activity {
         } else {
             // Update, if entry already exists
            // getContentResolver().update(itemUri, values, null, null);
-            remoteDB.delete(id);
-            remoteDB.insert(ownQuery);
+            remoteDB.change(id, ownQuery);
         }
     }
 

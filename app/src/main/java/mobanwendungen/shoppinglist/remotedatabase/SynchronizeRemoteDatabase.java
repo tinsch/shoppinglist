@@ -35,10 +35,13 @@ public class SynchronizeRemoteDatabase {
     private Context m_context;
     private String query;
     private boolean fetchAfterQuery;
-
+    private boolean insertAfterDelete;
+    private OwnQuery insertAfterDeleteQuery;
 
     public SynchronizeRemoteDatabase(Context context){
         fetchAfterQuery = false;
+        insertAfterDelete = false;
+        insertAfterDeleteQuery = null;
         m_context = context;
     }
 
@@ -51,6 +54,13 @@ public class SynchronizeRemoteDatabase {
         fetchAfterQuery = true;
         this.query = INSERTQUERY + query.toString();
         Log.d(DEBUG_TAG, "following query is called: " + query);
+        connect();
+    }
+
+    public void change(Long id, OwnQuery query){
+        insertAfterDeleteQuery = query;
+        insertAfterDelete = true;
+        delete(id);
         connect();
     }
 
@@ -155,7 +165,10 @@ public class SynchronizeRemoteDatabase {
         }
 
         protected void onPostExecute(java.sql.ResultSet result) {
-            if (fetchAfterQuery){
+            if(insertAfterDelete){
+                insert(insertAfterDeleteQuery);
+                insertAfterDelete = false;
+            } else if (fetchAfterQuery){
                 fetchAfterQuery = false;
                 fetchData();
             }
