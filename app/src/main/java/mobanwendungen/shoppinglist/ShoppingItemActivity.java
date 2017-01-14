@@ -53,12 +53,11 @@ public class ShoppingItemActivity extends Activity {
         //    Log.d( //itemUri.toString());
             itemUri = extras
                     .getParcelable(ShoppinglistContentProvider.CONTENT_ITEM_TYPE);
-            id = extras.getParcelable("ID");
+            id = extras.getLong("ID");
             fillData(itemUri);
         }
 
         confirmButton.setOnClickListener(new View.OnClickListener() {
-
 
             public void onClick(View view) {
                 Log.d(DEBUG_TAG, "onCklickListener() was called.");
@@ -115,7 +114,7 @@ public class ShoppingItemActivity extends Activity {
     protected void onPause() {
         Log.d(DEBUG_TAG, "onPause() was called.");
         super.onPause();
-        saveState();
+      //  saveState();
     }
 
     private void saveState() {
